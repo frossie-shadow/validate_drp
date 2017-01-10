@@ -51,8 +51,8 @@ for visit in r_visits:
     for i in range(104):
 
         try:
-            src = butler.get('src',visit=visit, ccd=i)
-            img = butler.get('calexp',visit=visit, ccd=i,flags=afwTable.SOURCE_IO_NO_FOOTPRINTS)
+            src = butler.get('src', visit=visit, ccd=i)
+            img = butler.get('calexp', visit=visit, ccd=i, flags=afwTable.SOURCE_IO_NO_FOOTPRINTS)
             psf = img.getPsf()
         except:
             continue
@@ -63,13 +63,14 @@ for visit in r_visits:
             psf_e, psf_e1, psf_e2 = calculate_ellipticity(psf_shape)
             star_shape = s.getShape()
             star_e, star_e1, star_e2 = calculate_ellipticity(star_shape)
-            if np.isfinite([star_e1, psf_e1, star_e2, psf_e2]).all():
+
+            if np.isfinite([psf_e1, psf_e2, star_e1, star_e2]).all():
                 ra.append(s.getCoord().getRa().asDegrees())
                 dec.append(s.getCoord().getDec().asDegrees())
                 e1_res.append(star_e1-psf_e1)
                 e2_res.append(star_e2-psf_e2)
 
-    print np.mean(e1_res),np.mean(e2_res)
+    print(np.mean(e1_res), np.mean(e2_res))
     if np.isnan(np.mean(e1_res)):
         print 'error'
         continue
@@ -85,9 +86,9 @@ for visit in r_visits:
 xip=np.array(xip)
 med_xip = [np.median(xip[:,i]) for i in range(len(xip[0]))]
 err_xip = [np.std(xip[:,i])/np.sqrt(len(xip)) for i in range(len(xip[0]))]
-print r
-print med_xip
-print err_xip
+print(r)
+print(med_xip)
+print(err_xip)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
