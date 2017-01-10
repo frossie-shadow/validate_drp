@@ -193,6 +193,14 @@ class MatchedMultiVisitDataset(BlobBase):
                                            'PSF magnitude'))
         mapper.addOutputField(Field[float]('base_PsfFlux_magerr',
                                            'PSF magnitude uncertainty'))
+        mapper.addOutputField(Field[float]('e1',
+                                           'Source Ellipticity 1'))
+        mapper.addOutputField(Field[float]('e2',
+                                           'Source Ellipticity 1'))
+        mapper.addOutputField(Field[float]('psf_e1',
+                                           'PSF Ellipticity 1'))
+        mapper.addOutputField(Field[float]('psf_e2',
+                                           'PSF Ellipticity 1'))
         newSchema = mapper.getOutputSchema()
 
         # Create an object that matches multiple catalogs with same schema
@@ -207,6 +215,7 @@ class MatchedMultiVisitDataset(BlobBase):
         for vId in dataIds:
             try:
                 calexpMetadata = butler.get("calexp_md", vId, immediate=True)
+                calexp = butler.get("calexp", vId, flags=afwTable.SOURCE_IO_NO_FOOTPRINTS)
             except (FitsError, dafPersist.NoResults) as e:
                 print(e)
                 print("Could not open calibrated image file for ", vId)
@@ -227,6 +236,7 @@ class MatchedMultiVisitDataset(BlobBase):
                 continue
 
             calib = afwImage.Calib(calexpMetadata)
+            psf = calexp.getPsf()
 
             oldSrc = butler.get('src', vId, immediate=True)
             print(len(oldSrc), "sources in ccd %s  visit %s" %
@@ -242,6 +252,16 @@ class MatchedMultiVisitDataset(BlobBase):
                                        tmpCat['base_PsfFlux_fluxSigma'])
                 tmpCat['base_PsfFlux_mag'][:] = _[0]
                 tmpCat['base_PsfFlux_magerr'][:] = _[1]
+
+            for i, s in enumerate(src):
+                psf_shape = psf.computeShape(s.getCentroid())
+                psf_e, psf_e1, psf_e2 = calculate_ellipticity(psf_shape)
+                star_shape = s.getShape()
+                star_e, star_e1, star_e2 = calculate_ellipticity(star_shape)
+                tmpCat['e1'][i] = star_e1
+                tmpCat['e2'][i] = star_e2
+                tmpCat['psf_e1'][i] = psf_e1
+                tmpCat['psf_e2'][i] = psf_e2
 
             srcVis.extend(tmpCat, False)
             mmatch.add(catalog=tmpCat, dataId=vId)
