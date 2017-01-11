@@ -377,3 +377,55 @@ AD3:
       filter_names: [r, i, z, HSC-R, HSC-I, HSC-Y]
       dependencies:
         - AF3
+
+TE1:
+  reference:
+    doc: LPM-17
+    url: http://ls.st/lpm-17
+    page: 31
+  description: >
+    The averaged E1, E2, and Ex residual PSF ellipticity correlations
+    must have median absolute value less than this for separations < 1 arcmin.
+  operator: "<="
+  parameters:
+    D: {value: 1.0, unit: arcmin}
+    x: {value: 1}
+  specs:
+    - level: design
+      value: 2e-5
+      unit: ''
+      filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
+    - level: minimum
+      value: 3e-5
+      unit: ''
+      filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
+    - level: stretch
+      value: 1e-5
+      unit: ''
+      filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
+
+TE2:
+  reference:
+    doc: LPM-17
+    url: http://ls.st/lpm-17
+    page: 31
+  description: >
+    The averaged E1, E2, and Ex residual PSF ellipticity correlations
+    must have median absolute value less than this for separations > 5 arcmin.
+  operator: "<="
+  parameters:
+    D: {value: 5.0, unit: arcmin}
+    x: {value: 2}
+  specs:
+    - level: design
+      value: 2e-5
+      unit: ''
+      filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
+    - level: minimum
+      value: 3e-5
+      unit: ''
+      filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
+    - level: stretch
+      value: 1e-5
+      unit: ''
+      filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
