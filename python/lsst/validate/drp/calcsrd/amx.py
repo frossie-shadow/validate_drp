@@ -25,7 +25,9 @@ import numpy as np
 import astropy.units as u
 
 from lsst.validate.base import MeasurementBase
-from ..util import averageRaDecFromCat, sphDist
+
+from ..util import (averageRaDecFromCat, averageRaFromCat, averageDecFromCat,
+                    sphDist)
 
 
 class AMxMeasurement(MeasurementBase):
@@ -299,16 +301,6 @@ def matchVisitComputeDistance(visit_obj1, ra_obj1, dec_obj1,
                 distances.append(sphDist(ra_obj1[i], dec_obj1[i],
                                          ra_obj2[j], dec_obj2[j]))
     return distances
-
-
-def averageRaFromCat(cat):
-    meanRa, meanDec = averageRaDecFromCat(cat)
-    return meanRa
-
-
-def averageDecFromCat(cat):
-    meanRa, meanDec = averageRaDecFromCat(cat)
-    return meanDec
 
 
 def radiansToMilliarcsec(rad):
