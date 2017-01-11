@@ -149,6 +149,12 @@ def sphDist(ra1, dec1, ra2, dec2):
     return dist
 
 
+def medianEllipticityResidualsFromCat(cat):
+    e1_median = np.median(cat.get('e1') - cat.get('psf_e1'))
+    e2_median = np.median(cat.get('e2') - cat.get('psf_e2'))
+    return e1_median, e2_median
+
+
 def getCcdKeyName(dataid):
     """Return the key in a dataId that's referring to the CCD or moral equivalent.
 
