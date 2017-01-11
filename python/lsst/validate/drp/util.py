@@ -34,6 +34,15 @@ import lsst.afw.geom as afwGeom
 import lsst.afw.coord as afwCoord
 
 
+def calculate_ellipticity(shape):
+    import numpy as np
+    I_xx, I_xy, I_yy = shape.getIxx(), shape.getIxy(), shape.getIyy()
+    e = (I_xx - I_yy + 2j*I_xy) / (I_xx+I_yy + 2*np.sqrt(I_xx*I_yy - I_xy*2))
+    e1 = np.imag(e)
+    e2 = np.real(e)
+    return e, e1, e2
+
+
 def averageRaDec(ra, dec):
     """Calculate average RA, Dec from input lists using spherical geometry.
 

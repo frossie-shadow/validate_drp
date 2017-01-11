@@ -31,11 +31,12 @@ import lsst.afw.image as afwImage
 import lsst.afw.image.utils as afwImageUtils
 import lsst.daf.persistence as dafPersist
 from lsst.afw.table import (SourceCatalog, SchemaMapper, Field,
-                            MultiMatch, SimpleRecord, GroupView)
+                            MultiMatch, SimpleRecord, GroupView,
+                            SOURCE_IO_NO_FOOTPRINTS)
 from lsst.afw.fits import FitsError
 from lsst.validate.base import BlobBase
 
-from .util import getCcdKeyName, positionRmsFromCat
+from .util import (getCcdKeyName, averageRaDecFromCat, calculate_ellipticity)
 
 
 __all__ = ['MatchedMultiVisitDataset']
@@ -143,7 +144,7 @@ class MatchedMultiVisitDataset(BlobBase):
             description='RMS of sky coordinates of stars over multiple visits')
 
         # Match catalogs across visits
-        self._catalog, self._matchedCatalog =
+        self._catalog, self._matchedCatalog = \
             self._loadAndMatchCatalogs(repo, dataIds, matchRadius)
         self.magKey = self._matchedCatalog.schema.find("base_PsfFlux_mag").key
         # Reduce catalogs into summary statistics.
@@ -215,7 +216,7 @@ class MatchedMultiVisitDataset(BlobBase):
         for vId in dataIds:
             try:
                 calexpMetadata = butler.get("calexp_md", vId, immediate=True)
-                calexp = butler.get("calexp", vId, flags=afwTable.SOURCE_IO_NO_FOOTPRINTS)
+                calexp = butler.get("calexp", vId, flags=SOURCE_IO_NO_FOOTPRINTS)
             except (FitsError, dafPersist.NoResults) as e:
                 print(e)
                 print("Could not open calibrated image file for ", vId)
@@ -253,7 +254,7 @@ class MatchedMultiVisitDataset(BlobBase):
                 tmpCat['base_PsfFlux_mag'][:] = _[0]
                 tmpCat['base_PsfFlux_magerr'][:] = _[1]
 
-            for i, s in enumerate(src):
+            for i, s in enumerate(oldSrc):
                 psf_shape = psf.computeShape(s.getCentroid())
                 psf_e, psf_e1, psf_e2 = calculate_ellipticity(psf_shape)
                 star_shape = s.getShape()
