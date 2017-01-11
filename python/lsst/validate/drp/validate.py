@@ -36,7 +36,7 @@ from .photerrmodel import PhotometricErrorModel
 from .astromerrmodel import AstrometricErrorModel
 from .calcsrd import (AMxMeasurement, AFxMeasurement, ADxMeasurement,
                       PA1Measurement, PA2Measurement, PF1Measurement,
-                      TE1Measurement, TE2Measurement)
+                      TExMeasurement)
 from .plot import (plotAMx, plotPA1, plotPhotometryErrorModel,
                    plotAstrometryErrorModel)
 
@@ -292,7 +292,7 @@ def runOneFilter(repo, visitDataIds, metrics, brightSnr=100,
                        filterName, specName, verbose=verbose,
                        job=job, linkedBlobs=linkedBlobs)
 
-    for x in (1, 2, 3):
+    for x in (1, 2):
         texName = 'TE{0:d}'.format(x)
         TExMeasurement(metrics[texName], matchedDataset, filterName,
                        job=job, linkedBlobs=linkedBlobs, verbose=verbose)
