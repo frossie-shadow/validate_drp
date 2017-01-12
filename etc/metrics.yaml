@@ -388,19 +388,25 @@ TE1:
     must have median absolute value less than this for separations < 1 arcmin.
   operator: "<="
   parameters:
-    D: {value: 1.0, unit: arcmin}
+    D:
+      value: 1.0
+      unit: arcmin
+      description: Separation distance
+    bin_range_operator:
+      value: "<="
+      description: Specifies if we're looking at correlations less than D or greater than D.
     x: {value: 1}
   specs:
     - level: design
-      value: 2e-5
+      value: 0.00002
       unit: ''
       filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
     - level: minimum
-      value: 3e-5
+      value: 0.00003
       unit: ''
       filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
     - level: stretch
-      value: 1e-5
+      value: 0.00001
       unit: ''
       filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
 
@@ -414,18 +420,24 @@ TE2:
     must have median absolute value less than this for separations > 5 arcmin.
   operator: "<="
   parameters:
-    D: {value: 5.0, unit: arcmin}
+    D:
+      value: 5.0
+      unit: arcmin
+      description: Separation distance
+    bin_range_operator:
+      value: ">="
+      description: Specifies if we're looking at correlations less than D or greater than D.
     x: {value: 2}
   specs:
     - level: design
-      value: 2e-5
+      value: 0.00005
       unit: ''
       filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
     - level: minimum
-      value: 3e-5
+      value: 0.00003
       unit: ''
       filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
     - level: stretch
-      value: 1e-5
+      value: 0.00001
       unit: ''
       filter_names: [r, i, HSC-R, HSC-I, HSC-Y]
