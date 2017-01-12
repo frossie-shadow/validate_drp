@@ -154,8 +154,8 @@ def correlation_function_ellipticity(matches):
                                 verbose=2)
     gg.process(catTree)
     r = np.exp(gg.meanlogr) * u.arcmin
-    xip = gg.xip
-    xip_err = np.sqrt(gg.varxi)
+    xip = gg.xip * u.Unit('')
+    xip_err = np.sqrt(gg.varxi) * u.Unit('')
 
     return (r, xip, xip_err)
 
