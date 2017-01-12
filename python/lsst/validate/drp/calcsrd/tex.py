@@ -18,18 +18,22 @@
 # the GNU General Public License along with this program.  If not,
 # see <https://www.lsstcorp.org/LegalNotices/>.
 
-import treecorr
-from lsst.daf.persistence import Butler
-import lsst.afw.table as afwTable
-import numpy as np
-from matplotlib import pyplot as plt
+import operator
 import os
 
 import astropy.units as u
+from matplotlib import pyplot as plt
+import numpy as np
+import treecorr
 
-from lsst.validate.base import MeasurementBase
+from lsst.daf.persistence import Butler
+import lsst.afw.table as afwTable
+from lsst.validate.base import MeasurementBase, Metric
 
-from ..util import medianEllipticityResidualsFromCat
+from ..util import (averageRaFromCat, averageDecFromCat,
+                    medianEllipticity1ResidualsFromCat,
+                    medianEllipticity2ResidualsFromCat)
+
 
 class TExMeasurement(MeasurementBase):
     """Measurement of TEx (x=1,2): Correlation of PSF residual ellipticity
@@ -66,7 +70,7 @@ class TExMeasurement(MeasurementBase):
     Specification:
         Using the full survey data, the E1, E2, and EX residual PSF ellipticity
         correlations averaged over an arbitrary FOV must have the median
-        less than TE1 for θ ≤ 1 arcmin, and less than TE2 for θ ≥ 5 arcmin.
+        less than TE1 for theta <= 1 arcmin, and less than TE2 for theta >= 5 arcmin.
 
     The residual ellipticity correlations vary smoothly so it is sufficient to
     specify limits in these two angular ranges. On 1 arcmin to 5 arcmin scales,
@@ -108,20 +112,10 @@ class TExMeasurement(MeasurementBase):
 
         # Measurement Parameters
         self.register_parameter('D', datum=self.metric.D)
-
-        if magRange is None:
-            magRange = np.array([17.0, 21.5]) * u.mag
-        else:
-            assert len(magRange) == 2
-            if not isinstance(magRange, u.Quantity):
-                magRange = np.array(magRange) * u.mag
-        self.register_parameter('magRange',
-                                quantity=magRange,
-                                description='Stellar magnitude selection '
-                                            'range.')
+        self.register_parameter('bin_operator', datum=self.metric.bin_operator)
 
         # Register measurement extras
-        self.register_extra('ellipticityCorrelation', label='ellipticity correlation')
+#        self.register_extra('ellipticityCorrelation', label='ellipticity correlation')
 
         # Add external blob so that links will be persisted with
         # the measurement
@@ -131,38 +125,68 @@ class TExMeasurement(MeasurementBase):
 
         matches = matchedDataset.safeMatches
 
-        corr_in_bins = correlation_function_ellipticity(matches, circle_radius=1)
-        corr = select_bin_from_corr(corr_in_bins, circle_radius=1)
+        r, xip, xip_err = correlation_function_ellipticity(matches)
+        PLOT=True
+        if PLOT:
+            plot_correlation_function_ellipticity(r, xip, xip_err)
+        corr, corr_err = select_bin_from_corr(r, xip, xip_err,
+            radius=self.D,
+            operator=Metric.convert_operator_str(self.bin_operator))
 
-        self.ellipticityCorrelation = corr_in_bins
+#        self.ellipticityCorrelation = corr
         self.quantity = corr * u.Unit('')
 
         if job:
             job.register_measurement(self)
 
-xip=[]
-xip_err=[]
 
-ra = groupViewInMagRange.aggregate(averageRaFromCat) * u.radian
-dec = groupViewInMagRange.aggregate(averageDecFromCat) * u.radian
-e1_res, e2_res = groupViewInMagRange.aggregate(medianEllipticityResidualsFromCat)
+def correlation_function_ellipticity(matches):
+    xip=[]
+    xip_err=[]
 
-catTree = treecorr.Catalog(ra=ra, dec=dec, g1=e1_res, g2=e2_res,
-                           dec_units='radian', ra_units='radian')
-gg = treecorr.GGCorrelation(nbins=10, min_sep=0.5, max_sep=10, sep_units='arcmin',
-                            verbose=2)
-gg.process(catTree)
-r = np.exp(gg.meanlogr)
-xip = gg.xip
-xip_err = np.sqrt(gg.varxi)
+    ra = matches.aggregate(averageRaFromCat) * u.radian
+    dec = matches.aggregate(averageDecFromCat) * u.radian
 
-print(r)
-print(xip)
-print(xip_err)
+    e1_res = matches.aggregate(medianEllipticity1ResidualsFromCat)
+    e2_res = matches.aggregate(medianEllipticity2ResidualsFromCat)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.errorbar(r, xip, yerr=xip_err)
-ax.set_xlabel('Separation (arcmin)',size=19)
-ax.set_ylabel('Median Residual Ellipticity Correlation',size=19)
-fig.show()
+    catTree = treecorr.Catalog(ra=ra, dec=dec, g1=e1_res, g2=e2_res,
+                               dec_units='radian', ra_units='radian')
+    gg = treecorr.GGCorrelation(nbins=20, min_sep=0.25, max_sep=20, sep_units='arcmin',
+                                verbose=2)
+    gg.process(catTree)
+    r = np.exp(gg.meanlogr) * u.arcmin
+    xip = gg.xip
+    xip_err = np.sqrt(gg.varxi)
+
+    return (r, xip, xip_err)
+
+
+def select_bin_from_corr(r, xip, xip_err, radius=1, operator=operator.le):
+    """Aggregate measurements in set of bins
+
+    Returns aggregate measurement for all bins satisfying operator
+
+    r : radius
+    xip : correlation
+    xip_err : correlation uncertainty
+    operator : '<=' or '>='
+    """
+
+#    print("R, RADIUS: ", r, radius)
+    w, = np.where(operator(r, radius))
+#    print("w,: ", w)
+
+    avg_xip = np.average(xip[w])
+    avg_xip_err = np.average(xip_err[w])
+
+    return avg_xip, avg_xip_err
+
+
+def plot_correlation_function_ellipticity(r, xip, xip_err):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.errorbar(r.value, xip, yerr=xip_err)
+    ax.set_xlabel('Separation (arcmin)',size=19)
+    ax.set_ylabel('Median Residual Ellipticity Correlation',size=19)
+    fig.savefig('ellipticity_corr.png')
