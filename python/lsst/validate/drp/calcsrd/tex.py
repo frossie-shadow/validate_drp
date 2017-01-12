@@ -115,6 +115,12 @@ class TExMeasurement(MeasurementBase):
         self.register_parameter('D', datum=self.metric.D)
         self.register_parameter('bin_range_operator', datum=self.metric.bin_range_operator)
 
+        # Place to save correlation function vs radius
+        # for later plotting or re-analysis
+        self.register_extra('radius', label='Correlation radius', unit=u.arcmin)
+        self.register_extra('xip', label='Correlation strength', unit=u.Unit(''))
+        self.register_extra('xip_err', label='Correlation strength uncertainty', unit=u.Unit(''))
+
         # Add external blob so that links will be persisted with
         # the measurement
         if linkedBlobs is not None:
@@ -123,11 +129,18 @@ class TExMeasurement(MeasurementBase):
 
         matches = matchedDataset.safeMatches
 
-        r, xip, xip_err = correlation_function_ellipticity(matches)
+        self.radius, self.xip, self.xip_err = \
+            correlation_function_ellipticity(matches)
+
         PLOT=True
         if PLOT:
-            plot_correlation_function_ellipticity(r, xip, xip_err)
-        corr, corr_err = select_bin_from_corr(r, xip, xip_err,
+            plot_correlation_function_ellipticity(
+                self.radius, self.xip, self.xip_err)
+
+        corr, corr_err = select_bin_from_corr(
+            self.radius,
+            self.xip,
+            self.xip_err,
             radius=self.D,
             operator=Metric.convert_operator_str(self.bin_range_operator))
 
