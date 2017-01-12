@@ -19,15 +19,12 @@
 # see <https://www.lsstcorp.org/LegalNotices/>.
 
 import operator
-import os
 
 import astropy.units as u
 from matplotlib import pyplot as plt
 import numpy as np
 import treecorr
 
-from lsst.daf.persistence import Butler
-import lsst.afw.table as afwTable
 from lsst.validate.base import MeasurementBase, Metric
 
 from ..util import (averageRaFromCat, averageDecFromCat,
@@ -147,8 +144,8 @@ class TExMeasurement(MeasurementBase):
 
 
 def correlation_function_ellipticity(matches):
-    xip=[]
-    xip_err=[]
+    xip = []
+    xip_err = []
 
     ra = matches.aggregate(averageRaFromCat) * u.radian
     dec = matches.aggregate(averageDecFromCat) * u.radian
@@ -179,9 +176,7 @@ def select_bin_from_corr(r, xip, xip_err, radius=1, operator=operator.le):
     operator : '<=' or '>='
     """
 
-#    print("R, RADIUS: ", r, radius)
     w, = np.where(operator(r, radius))
-#    print("w,: ", w)
 
     avg_xip = np.average(xip[w])
     avg_xip_err = np.average(xip_err[w])
@@ -193,6 +188,6 @@ def plot_correlation_function_ellipticity(r, xip, xip_err):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.errorbar(r.value, xip, yerr=xip_err)
-    ax.set_xlabel('Separation (arcmin)',size=19)
-    ax.set_ylabel('Median Residual Ellipticity Correlation',size=19)
+    ax.set_xlabel('Separation (arcmin)', size=19)
+    ax.set_ylabel('Median Residual Ellipticity Correlation', size=19)
     fig.savefig('ellipticity_corr.png')
