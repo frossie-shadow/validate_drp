@@ -131,8 +131,8 @@ class TExMeasurement(MeasurementBase):
             radius=self.D,
             operator=Metric.convert_operator_str(self.bin_range_operator))
 
-#        self.ellipticityCorrelation = corr
-        self.quantity = corr * u.Unit('')
+        # We store the absolute value.
+        self.quantity = np.abs(corr) * u.Unit('')
 
         if job:
             job.register_measurement(self)
