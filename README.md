@@ -28,7 +28,8 @@ You can run `validateDrp.py` in any of the following modes:
 
 This package also includes examples that run processCcd task on some
 CFHT data and DECam data
-and validate the astrometric and photometric repeatability of the results.
+and validate the astrometric and photometric repeatability
+and the residual PSF ellipticity correlation of the results.
 
 Pre-requisites for the examples: install and declare the following
 
@@ -300,7 +301,7 @@ E.g., the expected astrometric uncertainty is intimately related to the seeing o
 * `examples/DecamCosmos.yaml`: DECam COSMOS YAML file with visits, ccd, paramaters for validateDrp.
 * `python/lsst/validate/drp/validate.py`: Main driver for metric measurements, plotting, and summary printouts.
 * `python/lsst/validate/drp/calcsrd`: Includes modules that calculate each metric
-* `python/lsst/validate/drp/matchreduce.py`: Matches star catalogs across mulitple visits; this catalog is used by metric measurements in cluding AMx, ADx, AFx, PA1, PA2 and PF1.
+* `python/lsst/validate/drp/matchreduce.py`: Matches star catalogs across mulitple visits; this catalog is used by metric measurements including AMx, ADx, AFx, PA1, PA2, PF1, TE1, and TE2.
 * `python/lsst/validate/drp/astromerrmodel.py`: Model of astrometric errors.
 * `python/lsst/validate/drp/photerrmodel.py`: Model of photometric errors.
 * `python/lsst/validate/drp/plot.py`: Generate matplotlib visualizations metrics and error models.
