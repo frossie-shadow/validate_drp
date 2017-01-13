@@ -557,10 +557,12 @@ def plotAMx(amx, afx, filterName, amxSpecName='design', outputPrefix=""):
 def plotTEx(tex, filterName, texSpecName='design', outputPrefix=''):
     fig = plt.figure(figsize=(10, 6))
     ax1 = fig.add_subplot(1, 1, 1)
+    # Plot correlation vs. radius
     ax1.errorbar(tex.radius.value, tex.xip.value, yerr=tex.xip_err.value)
-    ax1.set_xlabel('Separation (arcmin)',size=19)
-    ax1.set_ylabel('Median Residual Ellipticity Correlation',size=19)
+    ax1.set_xlabel('Separation (arcmin)', size=19)
+    ax1.set_ylabel('Median Residual Ellipticity Correlation', size=19)
 
+    # Overlay requirements level
     texSpec = tex.metric.get_spec(texSpecName, filter_name=filterName)
     texSpecLabel = '{tex.label} {specname}: {tex.quantity:.2g}'.format(
         tex=tex,
@@ -568,13 +570,13 @@ def plotTEx(tex, filterName, texSpecName='design', outputPrefix=''):
     ax1.axhline(texSpec.quantity.value, 0, 1, linewidth=2, color='red',
                 label=texSpecLabel)
 
-    title = """
+    titleTemplate = """
         {metric} Residual PSF Ellipticity Correlation
         {bin_range_operator:s} {D.value:.1f}{D.unit:latex}
-        """.format(
-        metric=tex.label,
-        bin_range_operator=tex.bin_range_operator,
-        D=tex.D)
+        """
+    title = titleTemplate.format(metric=tex.label,
+                                 bin_range_operator=tex.bin_range_operator,
+                                 D=tex.D)
     ax1.set_title(title)
     ax1.set_xlim(0.0, 20.0)
     ax1.set_xlabel(

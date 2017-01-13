@@ -37,7 +37,7 @@ from .astromerrmodel import AstrometricErrorModel
 from .calcsrd import (AMxMeasurement, AFxMeasurement, ADxMeasurement,
                       PA1Measurement, PA2Measurement, PF1Measurement,
                       TExMeasurement)
-from .plot import (plotAMx, plotPA1, plotPhotometryErrorModel,
+from .plot import (plotAMx, plotPA1, plotTEx, plotPhotometryErrorModel,
                    plotAstrometryErrorModel)
 
 
@@ -354,6 +354,19 @@ def plot_metrics(job, filterName, outputPrefix=''):
     except RuntimeError as e:
         print(e)
         print('\tSkipped plotAstrometryErrorModel')
+
+    for x in (1, 2):
+        texName = 'TE{0:d}'.format(x)
+
+        measurement = job.get_measurement(texName)
+        if measurement.quantity is not None:
+            try:
+                plotTEx(measurement, filterName,
+                        texSpecName='design',
+                        outputPrefix=outputPrefix)
+            except RuntimeError as e:
+                print(e)
+                print('\tSkipped plot{}'.format(texName))
 
 
 def print_metrics(job, filterName, metrics):

@@ -132,11 +132,6 @@ class TExMeasurement(MeasurementBase):
         self.radius, self.xip, self.xip_err = \
             correlation_function_ellipticity(matches)
 
-        PLOT=True
-        if PLOT:
-            plot_correlation_function_ellipticity(
-                self.radius, self.xip, self.xip_err)
-
         corr, corr_err = select_bin_from_corr(
             self.radius,
             self.xip,
