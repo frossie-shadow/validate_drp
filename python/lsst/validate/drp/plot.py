@@ -564,11 +564,24 @@ def plotTEx(tex, filterName, texSpecName='design', outputPrefix=''):
 
     # Overlay requirements level
     texSpec = tex.metric.get_spec(texSpecName, filter_name=filterName)
-    texSpecLabel = '{tex.label} {specname}: {tex.quantity:.2g}'.format(
+    texSpecLabel = '{tex.label} {specname}: {texSpec:.2g}'.format(
         tex=tex,
+        texSpec=tex.metric.get_spec(texSpecName,
+                                    filter_name=filterName).quantity,
         specname=texSpecName)
     ax1.axhline(texSpec.quantity.value, 0, 1, linewidth=2, color='red',
                 label=texSpecLabel)
+
+    # Overlay measured KPM whether it passed or failed.
+    if tex.check_spec(texSpecName):
+        texStatus = 'passed'
+    else:
+        texStatus = 'failed'
+    texLabelTemplate = '{tex.label} measured: {tex.quantity:.2g} ({status})'
+    texLabel = texLabelTemplate.format(tex=tex, status=texStatus)
+
+    ax1.axhline(tex.quantity.value, 0, 1, linewidth=2, color='black',
+                label=texLabel)
 
     titleTemplate = """
         {metric} Residual PSF Ellipticity Correlation
