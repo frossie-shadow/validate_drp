@@ -559,6 +559,7 @@ def plotTEx(tex, filterName, texSpecName='design', outputPrefix=''):
     ax1 = fig.add_subplot(1, 1, 1)
     # Plot correlation vs. radius
     ax1.errorbar(tex.radius.value, tex.xip.value, yerr=tex.xip_err.value)
+    ax1.set_xscale('log')
     ax1.set_xlabel('Separation (arcmin)', size=19)
     ax1.set_ylabel('Median Residual Ellipticity Correlation', size=19)
 
