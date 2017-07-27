@@ -36,7 +36,7 @@ from lsst.afw.table import (SourceCatalog, SchemaMapper, Field,
 from lsst.afw.fits import FitsError
 from lsst.validate.base import BlobBase
 
-from .util import (getCcdKeyName, averageRaDecFromCat, calculate_ellipticity)
+from .util import (getCcdKeyName, positionRmsFromCat, calculate_ellipticity)
 
 
 __all__ = ['MatchedMultiVisitDataset']
