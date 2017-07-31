@@ -127,7 +127,7 @@ class TExMeasurement(MeasurementBase):
         matches = matchedDataset.safeMatches
 
         self.radius, self.xip, self.xip_err = \
-            correlation_function_ellipticity(matches)
+            correlation_function_ellipticity_from_matches(matches)
 
         corr, corr_err = select_bin_from_corr(
             self.radius,
@@ -143,16 +143,22 @@ class TExMeasurement(MeasurementBase):
             job.register_measurement(self)
 
 
-def correlation_function_ellipticity(matches):
-    xip = []
-    xip_err = []
+def correlation_function_ellipticity_from_matches(matches):
+    """Compute correlation function for ellipticity residual from a 'MatchedMultiVisitDataset' object.
 
+    Convenience function for calling correlation_function_ellipticity.
+    """
     ra = matches.aggregate(averageRaFromCat) * u.radian
     dec = matches.aggregate(averageDecFromCat) * u.radian
 
     e1_res = matches.aggregate(medianEllipticity1ResidualsFromCat)
     e2_res = matches.aggregate(medianEllipticity2ResidualsFromCat)
 
+    return correlation_function_ellipticity(ra, dec, e1_res, e2_res)
+
+
+def correlation_function_ellipticity(ra, dec, e1_res, e2_res):
+    """Compute correlation function for ellipticity residual from ra, dec, e1_res, e2_res."""
     catTree = treecorr.Catalog(ra=ra, dec=dec, g1=e1_res, g2=e2_res,
                                dec_units='radian', ra_units='radian')
     gg = treecorr.GGCorrelation(nbins=20, min_sep=0.25, max_sep=20, sep_units='arcmin',
