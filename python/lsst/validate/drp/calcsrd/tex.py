@@ -166,14 +166,21 @@ def correlation_function_ellipticity(matches):
 
 
 def select_bin_from_corr(r, xip, xip_err, radius=1, operator=operator.le):
-    """Aggregate measurements in set of bins
+    """Aggregate measurements for r less than (or greater than) radius.
 
-    Returns aggregate measurement for all bins satisfying operator
+    Returns aggregate measurement for all entries where operator(r, radius).
+    E.g.,
+     * Passing radius=5, operator=operator.le will return averages for r<=5
+     * Passing radius=2, operator=operator.gt will return averages for r >2
+
+    Written with the use of correlation functions in mind, thus the naming
+    but generically just returns averages of the arrays xip and xip_err
+    where the condition is satsified
 
     r : radius
     xip : correlation
     xip_err : correlation uncertainty
-    operator : '<=' or '>='
+    operator : Operation in the 'operator' module: le, ge, lt, gt
     """
 
     w, = np.where(operator(r, radius))
