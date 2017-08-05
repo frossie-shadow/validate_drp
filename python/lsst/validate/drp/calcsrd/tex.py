@@ -41,7 +41,7 @@ class TExMeasurement(MeasurementBase):
     metric : `lsst.validate.base.Metric`
         An TE1 or TE2 `~lsst.validate.base.Metric` instance.
     matchedDataset : lsst.validate.drp.matchreduce.MatchedMultiVisitDataset
-        Contains the matched catalogs to analyze.
+        The matched catalogs to analyze.
     filter_name : `str`
         filter_name (filter name) used in this measurement (e.g., ``'r'``).
     verbose : `bool`, optional
@@ -61,7 +61,7 @@ class TExMeasurement(MeasurementBase):
 
     Notes
     -----
-    This table below is provided ``validate_drp``\ 's :file:`metrics.yaml`.
+    The TEx table below is provided in ``validate_drp``\ 's :file:`metrics.yaml`.
 
     LPM-17 dated 2011-07-06
 
@@ -144,9 +144,19 @@ class TExMeasurement(MeasurementBase):
 
 
 def correlation_function_ellipticity_from_matches(matches):
-    """Compute correlation function for ellipticity residual from a 'MatchedMultiVisitDataset' object.
+    """Compute shear-shear correlation function for ellipticity residual from a 'MatchedMultiVisitDataset' object.
 
     Convenience function for calling correlation_function_ellipticity.
+
+    Parameters
+    ----------
+    matches : `lsst.validate.drp.matchreduce.MatchedMultiVisitDataset`
+        - The matched catalogs to analyze.
+
+    Returns
+    -------
+    r, xip, xip_err : each a np.array(dtype=float)
+        - The bin centers, two-point correlation, and uncertainty.
     """
     ra = matches.aggregate(averageRaFromCat) * u.radian
     dec = matches.aggregate(averageDecFromCat) * u.radian
@@ -158,7 +168,26 @@ def correlation_function_ellipticity_from_matches(matches):
 
 
 def correlation_function_ellipticity(ra, dec, e1_res, e2_res):
-    """Compute correlation function for ellipticity residual from ra, dec, e1_res, e2_res."""
+    """Compute shear-shear correlation function from ra, dec, g1, g2.
+
+    Default parameters for nbins, min_sep, max_sep chosen to cover
+       an appropriate range to calculate TE1 (<=1 arcmin) and TE2 (>=5 arcmin).
+    Parameters
+    ----------
+    ra : numpy.array
+        Right ascension of points [radians]
+    dec : numpy.array
+        Declination of points [radians]
+    e1_res : numpy.array
+        Residual ellipticity 1st component
+    e2_res : numpy.array
+        Residual ellipticity 2nd component
+
+    Returns
+    -------
+    r, xip, xip_err : each a np.array(dtype=float)
+        - The bin centers, two-point correlation, and uncertainty.
+    """
     catTree = treecorr.Catalog(ra=ra, dec=dec, g1=e1_res, g2=e2_res,
                                dec_units='radian', ra_units='radian')
     gg = treecorr.GGCorrelation(nbins=20, min_sep=0.25, max_sep=20, sep_units='arcmin',
@@ -183,10 +212,19 @@ def select_bin_from_corr(r, xip, xip_err, radius=1, operator=operator.le):
     but generically just returns averages of the arrays xip and xip_err
     where the condition is satsified
 
-    r : radius
-    xip : correlation
-    xip_err : correlation uncertainty
+    Parameters
+    ----------
+    r : numpy.array
+        radius
+    xip : numpy.array
+        correlation
+    xip_err : numpy.array
+        correlation uncertainty
     operator : Operation in the 'operator' module: le, ge, lt, gt
+
+    Returns
+    -------
+    avg_xip, avg_xip_err : (float, float)
     """
 
     w, = np.where(operator(r, radius))
@@ -198,6 +236,20 @@ def select_bin_from_corr(r, xip, xip_err, radius=1, operator=operator.le):
 
 
 def plot_correlation_function_ellipticity(r, xip, xip_err):
+    """
+    Parameters
+    ----------
+    r : numpy.array
+        Correlation average radius in each bin
+    xip : numpy.array
+        Two-point correlation
+    xip_err : numpy.array
+        Uncertainty on two-point correlation
+
+    Effects
+    -------
+    Creates a plot file in the local filesystem: 'ellipticty_corr.png'
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.errorbar(r.value, xip, yerr=xip_err)

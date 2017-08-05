@@ -555,6 +555,26 @@ def plotAMx(amx, afx, filterName, amxSpecName='design', outputPrefix=""):
 
 
 def plotTEx(tex, filterName, texSpecName='design', outputPrefix=''):
+    """Plot TEx correlation function measurements and thresholds.
+
+    Parameters
+    ----------
+    tex : Measurement object
+        The ellipticity residual correlation Measurement object
+    filterName : str
+        Name of the filter of the images
+    texSpecName : str
+        Level of requirement to compare against.
+        Must be a into the metrics specified in the tex Measurement object
+        Typically one of 'design', 'minimum', 'stretch'
+    outputPrefix : str, optional
+        Prefix to use for filename of plot file.
+
+    Effects
+    -------
+    Saves an output plot file to that starts with specified outputPrefix.
+
+    """
     fig = plt.figure(figsize=(10, 6))
     ax1 = fig.add_subplot(1, 1, 1)
     # Plot correlation vs. radius
