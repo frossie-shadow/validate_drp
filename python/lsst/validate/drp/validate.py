@@ -358,15 +358,14 @@ def plot_metrics(job, filterName, outputPrefix=''):
     for x in (1, 2):
         texName = 'TE{0:d}'.format(x)
 
-        measurement = job.get_measurement(texName)
-        if measurement.quantity is not None:
-            try:
-                plotTEx(measurement, filterName,
-                        texSpecName='design',
-                        outputPrefix=outputPrefix)
-            except RuntimeError as e:
-                print(e)
-                print('\tSkipped plot{}'.format(texName))
+        try:
+            measurement = job.get_measurement(texName)
+            plotTEx(measurement, filterName,
+                    texSpecName='design',
+                    outputPrefix=outputPrefix)
+        except RuntimeError as e:
+            print(e)
+            print('\tSkipped plot{}'.format(texName))
 
 
 def print_metrics(job, filterName, metrics):
