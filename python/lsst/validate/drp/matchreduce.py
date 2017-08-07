@@ -254,15 +254,19 @@ class MatchedMultiVisitDataset(BlobBase):
                 tmpCat['base_PsfFlux_mag'][:] = _[0]
                 tmpCat['base_PsfFlux_magerr'][:] = _[1]
 
+            e1_key = tmpCat.schema['e1'].asKey()
+            e2_key = tmpCat.schema['e2'].asKey()
+            psf_e1_key = tmpCat.schema['psf_e1'].asKey()
+            psf_e2_key = tmpCat.schema['psf_e2'].asKey()
             for i, s in enumerate(oldSrc):
                 psf_shape = psf.computeShape(s.getCentroid())
                 psf_e, psf_e1, psf_e2 = calculate_ellipticity(psf_shape)
                 star_shape = s.getShape()
                 star_e, star_e1, star_e2 = calculate_ellipticity(star_shape)
-                tmpCat['e1'][i] = star_e1
-                tmpCat['e2'][i] = star_e2
-                tmpCat['psf_e1'][i] = psf_e1
-                tmpCat['psf_e2'][i] = psf_e2
+                tmpCat[e1_key][i] = star_e1
+                tmpCat[e2_key][i] = star_e2
+                tmpCat[psf_e1_key][i] = psf_e1
+                tmpCat[psf_e2_key][i] = psf_e2
 
             srcVis.extend(tmpCat, False)
             mmatch.add(catalog=tmpCat, dataId=vId)
