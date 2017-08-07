@@ -39,7 +39,11 @@ def calculate_ellipticity(shape):
 
     Parameters
     ----------
-    shape : lsst.meas.base.shape object
+    shape : geom::ellipses::Quadrupole
+        The LSST generic shape object returned by psf.computeShape()
+        or source.getShape() for a specific source.
+        Imeplementation: just needs to have .getIxx, .getIxy, .getIyy methods
+        that each return a float describing the respective second moments.
 
     Returns
     -------
