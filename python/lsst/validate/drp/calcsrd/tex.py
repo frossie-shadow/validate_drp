@@ -254,7 +254,8 @@ def select_bin_from_corr(r, xip, xip_err, radius=1, operator=operator.le):
     return avg_xip, avg_xip_err
 
 
-def plot_correlation_function_ellipticity(r, xip, xip_err):
+def plot_correlation_function_ellipticity(r, xip, xip_err,
+                                          plotfile='ellipticity_corr.png'):
     """
     Parameters
     ----------
@@ -274,4 +275,4 @@ def plot_correlation_function_ellipticity(r, xip, xip_err):
     ax.errorbar(r.value, xip, yerr=xip_err)
     ax.set_xlabel('Separation (arcmin)', size=19)
     ax.set_ylabel('Median Residual Ellipticity Correlation', size=19)
-    fig.savefig('ellipticity_corr.png')
+    fig.savefig(plotfile)
