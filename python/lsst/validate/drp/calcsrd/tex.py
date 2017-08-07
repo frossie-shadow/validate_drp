@@ -127,7 +127,7 @@ class TExMeasurement(MeasurementBase):
         matches = matchedDataset.safeMatches
 
         self.radius, self.xip, self.xip_err = \
-            correlation_function_ellipticity_from_matches(matches)
+            correlation_function_ellipticity_from_matches(matches, verbose=verbose)
 
         corr, corr_err = select_bin_from_corr(
             self.radius,
@@ -143,7 +143,7 @@ class TExMeasurement(MeasurementBase):
             job.register_measurement(self)
 
 
-def correlation_function_ellipticity_from_matches(matches):
+def correlation_function_ellipticity_from_matches(matches, **kwargs):
     """Compute shear-shear correlation function for ellipticity residual from a 'MatchedMultiVisitDataset' object.
 
     Convenience function for calling correlation_function_ellipticity.
@@ -164,10 +164,12 @@ def correlation_function_ellipticity_from_matches(matches):
     e1_res = matches.aggregate(medianEllipticity1ResidualsFromCat)
     e2_res = matches.aggregate(medianEllipticity2ResidualsFromCat)
 
-    return correlation_function_ellipticity(ra, dec, e1_res, e2_res)
+    return correlation_function_ellipticity(ra, dec, e1_res, e2_res, **kwargs)
 
 
-def correlation_function_ellipticity(ra, dec, e1_res, e2_res):
+def correlation_function_ellipticity(ra, dec, e1_res, e2_res,
+                                     nbins=20, min_sep=0.25, max_sep=20,
+                                     sep_units='arcmin', verbose=False):
     """Compute shear-shear correlation function from ra, dec, g1, g2.
 
     Default parameters for nbins, min_sep, max_sep chosen to cover
@@ -182,16 +184,33 @@ def correlation_function_ellipticity(ra, dec, e1_res, e2_res):
         Residual ellipticity 1st component
     e2_res : numpy.array
         Residual ellipticity 2nd component
+    nbins : float, optional
+        Number of bins over which to analyze the two-point correlation
+    min_sep : float, optional
+        Minimum separation over which to analyze the two-point correlation
+    max_sep : float, optional
+        Maximum separation over which to analyze the two-point correlation
+    sep_units : str, optional
+        Specify the units of min_sep and max_sep
+    verbose : bool
+        Request verbose output from `treecorr`.
+        verbose=True will use verbose=2 for `treecorr.GGCorrelation`.
 
     Returns
     -------
     r, xip, xip_err : each a np.array(dtype=float)
         - The bin centers, two-point correlation, and uncertainty.
     """
+    if verbose:
+        verbose_level = 2
+    else:
+        verbose_level = 0
+
     catTree = treecorr.Catalog(ra=ra, dec=dec, g1=e1_res, g2=e2_res,
                                dec_units='radian', ra_units='radian')
-    gg = treecorr.GGCorrelation(nbins=20, min_sep=0.25, max_sep=20, sep_units='arcmin',
-                                verbose=2)
+    gg = treecorr.GGCorrelation(nbins=nbins, min_sep=min_sep, max_sep=max_sep,
+                                sep_units=sep_units,
+                                verbose=verbose_level)
     gg.process(catTree)
     r = np.exp(gg.meanlogr) * u.arcmin
     xip = gg.xip * u.Unit('')
