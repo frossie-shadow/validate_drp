@@ -201,6 +201,9 @@ def correlation_function_ellipticity(ra, dec, e1_res, e2_res,
     r, xip, xip_err : each a np.array(dtype=float)
         - The bin centers, two-point correlation, and uncertainty.
     """
+    # Translate to 'verbose_level' here to refer to the integer levels in TreeCorr
+    # While 'verbose' is more generically what is being passed around
+    #   for verbosity within 'validate_drp'
     if verbose:
         verbose_level = 2
     else:
