@@ -36,7 +36,7 @@ from lsst.afw.table import (SourceCatalog, SchemaMapper, Field,
 from lsst.afw.fits import FitsError
 from lsst.validate.base import BlobBase
 
-from .util import (getCcdKeyName, positionRmsFromCat, calculate_ellipticity)
+from .util import (getCcdKeyName, positionRmsFromCat, calculate_ellipticity_from_cat)
 
 
 __all__ = ['MatchedMultiVisitDataset']
@@ -254,28 +254,12 @@ class MatchedMultiVisitDataset(BlobBase):
                 tmpCat['base_PsfFlux_mag'][:] = _[0]
                 tmpCat['base_PsfFlux_magerr'][:] = _[1]
 
-            e1_key = tmpCat.schema['e1'].asKey()
-            e2_key = tmpCat.schema['e2'].asKey()
-            psf_e1_key = tmpCat.schema['psf_e1'].asKey()
-            psf_e2_key = tmpCat.schema['psf_e2'].asKey()
-            star_e1_collector = []
-            star_e2_collector = []
-            psf_e1_collector = []
-            psf_e2_collector = []
-            for i, s in enumerate(oldSrc):
-                psf_shape = psf.computeShape(s.getCentroid())
-                psf_e, psf_e1, psf_e2 = calculate_ellipticity(psf_shape)
-                star_shape = s.getShape()
-                star_e, star_e1, star_e2 = calculate_ellipticity(star_shape)
-                star_e1_collector.append(star_e1)
-                star_e2_collector.append(star_e2)
-                psf_e1_collector.append(psf_e1)
-                psf_e2_collector.append(psf_e2)
-
-            tmpCat[e1_key][:] = star_e1_collector
-            tmpCat[e2_key][:] = star_e2_collector
-            tmpCat[psf_e1_key][:] = psf_e1_collector
-            tmpCat[psf_e2_key][:] = psf_e2_collector
+            _, psf_e1, psf_e2 = calculate_ellipticity_from_cat(oldSrc, slot_shape='slot_Shape_psf')
+            _, star_e1, star_e2 = calculate_ellipticity_from_cat(oldSrc, slot_shape='slot_Shape')
+            tmpCat['e1'][:] = star_e1
+            tmpCat['e2'][:] = star_e2
+            tmpCat['psf_e1'][:] = psf_e1
+            tmpCat['psf_e2'][:] = psf_e2
 
             srcVis.extend(tmpCat, False)
             mmatch.add(catalog=tmpCat, dataId=vId)
