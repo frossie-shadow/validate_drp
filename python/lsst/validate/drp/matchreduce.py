@@ -36,7 +36,7 @@ from lsst.afw.table import (SourceCatalog, SchemaMapper, Field,
 from lsst.afw.fits import FitsError
 from lsst.validate.base import BlobBase
 
-from .util import (getCcdKeyName, positionRmsFromCat, calculate_ellipticity_from_cat)
+from .util import (getCcdKeyName, positionRmsFromCat, ellipticity_from_cat)
 
 
 __all__ = ['MatchedMultiVisitDataset']
@@ -254,8 +254,8 @@ class MatchedMultiVisitDataset(BlobBase):
                 tmpCat['base_PsfFlux_mag'][:] = _[0]
                 tmpCat['base_PsfFlux_magerr'][:] = _[1]
 
-            _, psf_e1, psf_e2 = calculate_ellipticity_from_cat(oldSrc, slot_shape='slot_Shape_psf')
-            _, star_e1, star_e2 = calculate_ellipticity_from_cat(oldSrc, slot_shape='slot_Shape')
+            _, psf_e1, psf_e2 = ellipticity_from_cat(oldSrc, slot_shape='slot_Shape_psf')
+            _, star_e1, star_e2 = ellipticity_from_cat(oldSrc, slot_shape='slot_Shape')
             tmpCat['e1'][:] = star_e1
             tmpCat['e2'][:] = star_e2
             tmpCat['psf_e1'][:] = psf_e1

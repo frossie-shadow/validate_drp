@@ -34,7 +34,7 @@ import lsst.afw.geom as afwGeom
 import lsst.afw.coord as afwCoord
 
 
-def calculate_ellipticity_from_cat(cat, slot_shape='slot_Shape'):
+def ellipticity_from_cat(cat, slot_shape='slot_Shape'):
     """Calculate the ellipticity of the Shapes in a catalog from the 2nd moments.
 
     Parameters
@@ -54,10 +54,10 @@ def calculate_ellipticity_from_cat(cat, slot_shape='slot_Shape'):
         Complex ellipticity, imaginary part, real part
     """
     I_xx, I_xy, I_yy = cat.get(slot_shape+'_xx'), cat.get(slot_shape+'_xy'), cat.get(slot_shape+'_yy')
-    return calculate_ellipticity(I_xx, I_xy, I_yy)
+    return ellipticity(I_xx, I_xy, I_yy)
 
 
-def calculate_ellipticity_from_shape(shape):
+def ellipticity_from_shape(shape):
     """Calculate the ellipticty of shape from its moments.
 
     Parameters
@@ -74,10 +74,10 @@ def calculate_ellipticity_from_shape(shape):
         Complex ellipticity, imaginary part, real part
     """
     I_xx, I_xy, I_yy = shape.getIxx(), shape.getIxy(), shape.getIyy()
-    return calculate_ellipticity(I_xx, I_xy, I_yy)
+    return ellipticity(I_xx, I_xy, I_yy)
 
 
-def calculate_ellipticity(I_xx, I_xy, I_yy):
+def ellipticity(I_xx, I_xy, I_yy):
     """Calculate ellipticity from second moments.
 
     Parameters
