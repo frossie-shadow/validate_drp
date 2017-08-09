@@ -53,7 +53,7 @@ def ellipticity_from_cat(cat, slot_shape='slot_Shape'):
     Returns
     -------
     e, e1, e2 : complex, float, float
-        Complex ellipticity, imaginary part, real part
+        Complex ellipticity, real part, imaginary part
     """
     I_xx, I_xy, I_yy = cat.get(slot_shape+'_xx'), cat.get(slot_shape+'_xy'), cat.get(slot_shape+'_yy')
     return ellipticity(I_xx, I_xy, I_yy)
@@ -73,7 +73,7 @@ def ellipticity_from_shape(shape):
     Returns
     -------
     e, e1, e2 : complex, float, float
-        Complex ellipticity, imaginary part, real part
+        Complex ellipticity, real part, imaginary part
     """
     I_xx, I_xy, I_yy = shape.getIxx(), shape.getIxy(), shape.getIyy()
     return ellipticity(I_xx, I_xy, I_yy)
@@ -91,7 +91,7 @@ def ellipticity(I_xx, I_xy, I_yy):
     Returns
     -------
     e, e1, e2 : (float, float, float) or (numpy.array, numpy.array, numpy.array)
-        Complex ellipticity, imaginary component, real component
+        Complex ellipticity, real component, imaginary component
     """
     e = (I_xx - I_yy + 2j*I_xy) / (I_xx + I_yy + 2*SM.sqrt(I_xx*I_yy - I_xy*2))
     e1 = np.real(e)
@@ -286,7 +286,7 @@ def medianEllipticityResidualsFromCat(cat):
     Returns
     -------
     float, float
-        median imaginary ellipticity residual, median real ellipticity residual
+        median real ellipticity residual, median imaginary ellipticity residual
     """
     e1_median = np.median(cat.get('e1') - cat.get('psf_e1'))
     e2_median = np.median(cat.get('e2') - cat.get('psf_e2'))
@@ -294,7 +294,7 @@ def medianEllipticityResidualsFromCat(cat):
 
 
 def medianEllipticity1ResidualsFromCat(cat):
-    """Compute the median imaginary ellipticty residuals from a catalog of measurements.
+    """Compute the median real ellipticty residuals from a catalog of measurements.
 
     Parameters
     ----------
@@ -304,7 +304,7 @@ def medianEllipticity1ResidualsFromCat(cat):
     Returns
     -------
     float
-        median imaginary ellipticity residual
+        median real ellipticity residual
     """
     e1_median = np.median(cat.get('e1') - cat.get('psf_e1'))
     return e1_median
@@ -321,7 +321,7 @@ def medianEllipticity2ResidualsFromCat(cat):
     Returns
     -------
     float
-        median real ellipticity residual
+        median imaginary ellipticity residual
     """
     e2_median = np.median(cat.get('e2') - cat.get('psf_e2'))
     return e2_median
